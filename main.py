@@ -15,6 +15,13 @@ def get_code():
 def parse_date(date):
     return datetime.strptime(str(date), '%Y%m%d')
 
+def barcode_parse(barcode, school_code):
+    # remove whitespace in barcodes. If the barcode doesn't match standard barcode length, append school code
+    barcode = barcode.replace(" ", "")
+    if len(barcode) < 14:
+        barcode = f"{barcode}-{school_code}"
+    # print(barcode)
+    return barcode
 
 def main():
     print("querying...")
@@ -53,7 +60,9 @@ def main():
         for line in results:
             report[line['LOAN_STATUS']] += 1
             line.update({'Z36_LOAN_DATE': parse_date(
-                line['Z36_LOAN_DATE']), 'Z36_DUE_DATE': parse_date(line['Z36_DUE_DATE'])})
+                line['Z36_LOAN_DATE']), 'Z36_DUE_DATE': parse_date(line['Z36_DUE_DATE']),
+                'ITEM_BARCODE': barcode_parse(line['ITEM_BARCODE'], school_code) 
+                })
             outputcsv.writerow(line)
             count += 1
             if count % 100 == 0:
