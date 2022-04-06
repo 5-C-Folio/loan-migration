@@ -23,9 +23,9 @@ def barcode_parse(barcode, school_code):
     # print(barcode)
     return barcode
 
-def main():
+
+def querystring(school_code):
     print("querying...")
-    school_code = get_code()
     querystring = f'''SELECT RTRIM(substr(barcode.Z308_REC_KEY,3)) as patron_barcode, 
     RTRIM(item.Z30_BARCODE) as item_barcode, 
     loan.Z36_LOAN_DATE, 
@@ -41,8 +41,14 @@ def main():
     inner join {school_code}50.Z30 item
     on item.Z30_REC_KEY =  loan.Z36_REC_KEY
     order by loan.Z36_STATUS, PATRON_BARCODE, loan.Z36_LOAN_DATE'''
+    return querystring
 
-    open_loans = DatabaseQuery(querystring)
+
+
+def main():
+   
+    school_code = get_code()
+    open_loans = DatabaseQuery(querystring(school_code))
 
     results = open_loans.search()
     headers = open_loans.headers
