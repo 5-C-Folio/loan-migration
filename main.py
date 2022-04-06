@@ -1,16 +1,19 @@
 from connection import DatabaseQuery
 from csv import DictWriter
 from datetime import datetime
+
+
 def get_code():
     school_code = input('Select schoolcode> ').upper()
 
-    if school_code in ['AMH', 'UMA', "SMT", 'MHC', 'HAM']:
+    if school_code in ['AMH', 'UMA', "SMT", 'MHC', 'HAM', 'DEP']:
         return school_code
-    else: 
-        print ('invalid school abbreviation ')
+    else:
+        print('invalid school abbreviation ')
+
 
 def parse_date(date):
-    return datetime.strptime(str(date),'%Y%m%d')
+    return datetime.strptime(str(date), '%Y%m%d')
 
 
 def main():
@@ -34,26 +37,29 @@ def main():
 
     open_loans = DatabaseQuery(querystring)
 
-    results= open_loans.search()
+    results = open_loans.search()
     headers = open_loans.headers
     now = datetime.now().strftime('%Y-%m-%d--%H')
-    with open (f'{school_code}-{now}-loans.csv', 'w', newline='') as output:
+    with open(f'{school_code}-{now}-loans.csv', 'w', newline='') as output:
         outputcsv = DictWriter(output, fieldnames=headers)
         print(headers)
         outputcsv.writeheader()
         count = 0
-        report= {
+        report = {
             'Checked out': 0,
-            'LOST': 0 ,
+            'LOST': 0,
             'CLAIMED RETURNED': 0
         }
         for line in results:
-            report[line['LOAN_STATUS']] +=1
-            line.update({'Z36_LOAN_DATE': parse_date(line['Z36_LOAN_DATE']),'Z36_DUE_DATE': parse_date(line['Z36_DUE_DATE']) })
+            report[line['LOAN_STATUS']] += 1
+            line.update({'Z36_LOAN_DATE': parse_date(
+                line['Z36_LOAN_DATE']), 'Z36_DUE_DATE': parse_date(line['Z36_DUE_DATE'])})
             outputcsv.writerow(line)
             count += 1
             if count % 100 == 0:
                 print(count)
-    print (report, count)
+    print(report, count)
+
+
 if __name__ == '__main__':
     main()
